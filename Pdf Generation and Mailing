@@ -1,0 +1,159 @@
+<?php
+
+require("class.phpmailer.php");
+require('fpdf.php');
+
+
+
+$conect = mysqli_connect("localhost", "root", "","resume");
+
+
+$sql = "INSERT INTO details(Name,Course,Collge,Mobile,Email,Field_of_Interest,Programming_language,Operating_System,Dob,Gender,Nationality) VALUES('".$_POST["Name"]."', '".$_POST["course"]."','".$_POST["college"]."','".$_POST["Mobile"]."','".$_POST["Email"]."','".$_POST["foi"]."','".$_POST["pl"]."','".$_POST["os"]."','".$_POST["dob"]."','".$_POST["gender"]."','".$_POST["nation"]."');";
+
+
+mysqli_query($conect,$sql);
+
+
+
+class PDF extends FPDF
+{
+
+// Page header
+
+function Header()
+{
+
+
+
+    // Arial bold 15
+ 
+   $this->SetFont('Times','B',25);
+ 
+   // Move to the right
+  
+  $this->Cell(60);
+ 
+   // Title
+
+    $this->Cell(60,10,'RESUME',0,1,'C');
+
+    // Line break
+
+    $this->Ln(20);
+}
+
+
+// Page footer
+
+function Footer()
+{
+
+    // Position at 1.5 cm from bottom
+   
+ $this->SetY(-15);
+ 
+   // Arial italic 8
+
+    $this->SetFont('Arial','I',8);
+
+    // Page number
+
+    $this->Cell(0,10,'Page '.$this->PageNo().'/{nb}',0,0,'C');
+}
+}
+
+
+// Instanciation of inherited class
+
+$pdf = new PDF();
+
+$pdf->AliasNbPages();
+
+$pdf->AddPage();
+
+$pdf->SetFont('Times','',12);
+
+
+$pdf->Cell(0,10,'Name : '.$_POST["Name"],0,1);
+
+$pdf->Cell(0,10,'Course : '.$_POST["course"],0,1);
+
+$pdf->cell(0,10,'College : '.$_POST["college"],0,1);
+
+$pdf->cell(0,10,'Mobile : '.$_POST["Mobile"],0,1);
+
+$pdf->cell(0,10,'Email : '.$_POST["Email"],0,1);
+
+
+$pdf->SetFont('Arial','B',12);
+ 
+$pdf->Cell(20,10,'COMPUTING COMPETENCY',0,1);
+
+
+
+$pdf->SetFont('Times','',12);
+
+$pdf->cell(0,10,'Field of Interest : '.$_POST["foi"],0,1);
+
+$pdf->cell(0,10,'Programming Language : '.$_POST["pl"],0,1);
+
+$pdf->cell(0,10,'Operating System : '.$_POST["os"],0,1);
+
+$pdf->SetFont('Arial','B',12);
+ 
+$pdf->Cell(20,10,'PERSONAL DETAILS',0,1);
+
+
+
+
+//$pdf->Cell(0,10,'PERSONAL DETAILS : ',0,1);
+
+
+$pdf->SetFont('Times','',12);
+
+$pdf->cell(0,10,'Date of Birth : '.$_POST["dob"],0,1);
+
+$pdf->cell(0,10,'Gender : '.$_POST["gender"],0,1);
+
+$pdf->cell(0,10,'Nationality : '.$_POST["nation"],0,1);
+//$pdf->Output();
+$filename="Resume.pdf";
+$pdf->Output($filename,"F");
+
+
+
+
+$mail = new PHPMailer();
+
+$mail->IsSMTP();                                      // set mailer to use SMTP
+$mail->Host = "smtp.gmail.com";  // specify main and backup server
+$mail->SMTPAuth = true;     // turn on SMTP authentication
+$mail->SMTPSecure="ssl";
+$mail->Port=465;
+$mail->Username = "nivasganesan97@gmail.com";  // SMTP username
+$mail->Password = "*******"; // SMTP password
+
+$mail->From = "nivasganesan97@gmail.com";
+$mail->FromName = "NIVAS GANESAN";
+
+$mail->AddAddress("catchnivas.gct@gmail.com");                  // name is optional
+$mail->AddReplyTo("nivasganesan97@gmail.com", "Reply");
+
+$mail->WordWrap = 50;                                 // set word wrap to 50 characters
+$mail->AddAttachment($filename);         // add attachments
+$mail->IsHTML(true);                                  // set email format to HTML
+
+$mail->Subject = "Resume";
+$mail->Body    = "Dear Madam,<br><br>Herewith I have attached the Resume .Kindly please find the attachment madam.";
+$mail->AltBody = "This is the body in plain text for non-HTML mail clients";
+
+if(!$mail->Send())
+{
+   echo "Message could not be sent. <p>";
+   echo "Mailer Error: " . $mail->ErrorInfo;
+   exit;
+}
+
+echo "Message has been sent";
+
+?>
